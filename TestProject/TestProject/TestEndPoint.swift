@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NetworkManager
 
 enum TestEndPoint {
     case fetchImages
@@ -19,25 +20,23 @@ extension TestEndPoint: EndPoint {
     var path: String {
         switch self {
             case .fetchImages:
-                "/200/300x"
+                "/200/300"
         }
     }
     
-    var header: NetworkManager.HTTPHeaders? {
+    var header: HTTPHeaders? {
         nil
     }
     
-    var parameters: NetworkManager.Parameters? {
+    var parameters: Parameters? {
         nil
     }
     
-    var method: NetworkManager.HTTPMethods {
+    var method: HTTPMethods {
         .get
     }
     
-    var encoding: NetworkManager.Encoding {
+    var encoding: Encoding {
         .URLEncoding
     }
-    
-
 }
