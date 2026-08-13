@@ -16,8 +16,7 @@ public protocol ModernConcurrencyAPIProtocol {
 }
 
 public final class APIClient {
-    var session: URLSession
-    var request: URLRequest?
+    let session: URLSession
 
     public init(config: URLSessionConfiguration = .default) {
         self.session = URLSession(configuration: config)
@@ -39,7 +38,7 @@ public final class APIClient {
         return response.data
     }
     
-    func handle(error: Error) -> NetworkError {
+    func handle(error: Error, request: URLRequest?) -> NetworkError {
         let errorCode = Int(error.localizedDescription) ?? -1
         if let urlError = error as? URLError {
             switch urlError.code {
@@ -48,7 +47,7 @@ public final class APIClient {
                 case .timedOut:
                     return NetworkError.timeout(errorCode)
                 case .badURL, .unsupportedURL:
-                    let url = self.request?.url?.absoluteString
+                    let url = request?.url?.absoluteString
                     return NetworkError.invalidURL(url)
                 default:
                     return NetworkError.noInternetConnection(errorCode)

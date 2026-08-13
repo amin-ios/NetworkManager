@@ -40,7 +40,12 @@ extension Response {
                     print("Failed to pretty print JSON")
                 }
             } catch {
-                print("Serialized Error: ",error.localizedDescription, error)
+                let nsError = error as NSError
+                print(
+                    "❎ Serialization Error: ",
+                    error.localizedDescription, "\n",
+                    nsError.userInfo["NSDebugDescription"] ?? ""
+                )
             }
         }
     }
