@@ -20,32 +20,37 @@ public protocol EndPoint {
 }
 
 public extension EndPoint {
-    var urlComponents: URLComponents {
+    var urlComponents: URLComponents? {
         guard var components = URLComponents(string: base) else {
             Logger.network.warning("Invalid URL: \(base)")
-            return .init()
+            return nil
         }
         components.path = path
         return components
     }
-    
-    var request: URLRequest? {
-        guard let url = urlComponents.url else {
-            Logger.network.error("failed to load URL from \(urlComponents)")
-            return nil
-        }
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = method.rawValue
-        urlRequest.allHTTPHeaderFields = header
-        
-        if let parameters = parameters {
-            do {
-                try encoding.encode(urlRequest: &urlRequest, with: parameters)
-            } catch {
-                Logger.network.error("\(error.localizedDescription)")
-                return nil
+
+    /// Builds the `URLRequest` for this endpoint.
+    /// - Throws: `NetworkError.invalidURL` if `base`/`path` don't form a valid URL,
+    ///   or `NetworkError.encodingFailed` if `parameters` can't be encoded.
+    var request: URLRequest {
+        get throws {
+            guard let url = urlComponents?.url else {
+                Logger.network.error("failed to build URL from base: \(base), path: \(path)")
+                throw NetworkError.invalidURL(base + path)
             }
+            var urlRequest = URLRequest(url: url)
+            urlRequest.httpMethod = method.rawValue
+            urlRequest.allHTTPHeaderFields = header
+
+            if let parameters {
+                do {
+                    try encoding.encode(urlRequest: &urlRequest, with: parameters)
+                } catch {
+                    Logger.network.error("\(error.localizedDescription)")
+                    throw error
+                }
+            }
+            return urlRequest
         }
-        return urlRequest
     }
 }

@@ -39,7 +39,11 @@ public final class APIClient {
     }
     
     func handle(error: Error, request: URLRequest?) -> NetworkError {
-        let errorCode = Int(error.localizedDescription) ?? -1
+        if let error = error as? NetworkError {
+            return error
+        }
+
+        let errorCode = (error as NSError).code
         if let urlError = error as? URLError {
             switch urlError.code {
                 case .notConnectedToInternet:
@@ -52,15 +56,6 @@ public final class APIClient {
                 default:
                     return NetworkError.noInternetConnection(errorCode)
             }
-        } else if let error = error as? NetworkError {
-            switch error {
-                case .serverError(code: let code, data: let data):
-                    return .serverError(code: code, data: data)
-                case .invalidResponse(let data):
-                    return .invalidResponse(data)
-                default: return .timeout(errorCode)
-            }
-
         } else {
             return .timeout(errorCode)
         }

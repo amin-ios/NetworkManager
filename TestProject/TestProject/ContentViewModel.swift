@@ -19,7 +19,7 @@ class TestViewModel: ObservableObject {
             let data = try await APIClient().execute(request: TestEndPoint.fetchImages)
             imageData = data
         } catch {
-            print(error.localizedDescription)
+            
         }
     }
 }

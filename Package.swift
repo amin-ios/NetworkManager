@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "NetworkManager",
     defaultLocalization: "en",
-    platforms: [.iOS(.v15)],
+    platforms: [.iOS(.v15), .macOS(.v12)],
     products: [
         .library(
             name: "NetworkManager",
@@ -15,7 +15,8 @@ let package = Package(
     targets: [
         .target(
             name: "NetworkManager",
-            path: "Sources/Network"
+            path: "Sources/Network",
+            resources: [.process("Resources")]
         ),
     ]
 )
