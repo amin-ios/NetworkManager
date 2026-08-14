@@ -6,20 +6,35 @@
 //
 
 import Foundation
+import OSLog
+
+extension Logger {
+    static let network = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "MyApp",
+        category: "Networking"
+    )
+}
+
 // MARK: - RequestLogger
 extension URLRequest {
     func log() {
-        print("🤝 Request:\nURL: \(self.url?.absoluteString ?? "No URL")")
-        print("Method: \(self.httpMethod ?? "No HTTP Method")")
+        Logger.network.debug(
+            """
+            🤝 Request:\nURL: \(self.url?.absoluteString ?? "No URL")
+            Method: \(self.httpMethod ?? "No HTTP Method")
+            """
+        )
+
         if let headers = self.allHTTPHeaderFields {
-            print("Headers:")
+            if !headers.isEmpty {
+                Logger.network.debug("Headers:")
+            }
             for (key, value) in headers {
-                print("\t\(key): \(value)")
+                Logger.network.debug("\t\(key): \(value)")
             }
         }
         if let bodyData = self.httpBody, let bodyString = String(data: bodyData, encoding: .utf8) {
-            print("Body:")
-            print(bodyString)
+            Logger.network.debug("Body: \(bodyString)")
         }
     }
 }
@@ -28,23 +43,30 @@ extension URLRequest {
 extension Response {
     func log() {
         if let httpResponse = self.response as? HTTPURLResponse {
-            print("✅ Response:\nStatus Code: \(httpResponse.statusCode)")
-            print("URL: \(httpResponse.url?.absoluteString ?? "")")
+            Logger.network.debug(
+                """
+                ✅ Response:\nStatus Code: \(httpResponse.statusCode)
+                URL: \(httpResponse.url?.absoluteString ?? "")
+                """
+            )
 
             do {
                 let object = try JSONSerialization.jsonObject(with: self.data,options: [])
                 if let prettyPrintedData = try? JSONSerialization.data(withJSONObject: object, options: .prettyPrinted),
                    let jsonString = String(data: prettyPrintedData, encoding: .utf8) {
-                    print("Serialized Object: ",jsonString)
+                    Logger.network.debug("Serialized Object: \(jsonString)")
                 } else {
-                    print("Failed to pretty print JSON")
+                    Logger.network.error("Failed to pretty print JSON")
                 }
             } catch {
                 let nsError = error as NSError
-                print(
-                    "❎ Serialization Error: ",
-                    error.localizedDescription, "\n",
-                    nsError.userInfo["NSDebugDescription"] ?? ""
+                let debugDescription = String(describing: nsError.userInfo["NSDebugDescription"] ?? "")
+                
+                Logger.network.error(
+                    """
+                    ❌ Serialization Error: \(error.localizedDescription)
+                    \(debugDescription)
+                    """
                 )
             }
         }

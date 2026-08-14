@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "NetworkManager",
     defaultLocalization: "en",
-    platforms: [.iOS(.v13)],
+    platforms: [.iOS(.v15)],
     products: [
         .library(
             name: "NetworkManager",

@@ -5,6 +5,7 @@
 //
 
 import Foundation
+import OSLog
 
 public typealias HTTPHeaders = [String: String]
 public typealias Parameters = [String: Any]
@@ -21,7 +22,7 @@ public protocol EndPoint {
 public extension EndPoint {
     var urlComponents: URLComponents {
         guard var components = URLComponents(string: base) else {
-            print("Invalid URL: \(base)")
+            Logger.network.warning("Invalid URL: \(base)")
             return .init()
         }
         components.path = path
@@ -30,7 +31,7 @@ public extension EndPoint {
     
     var request: URLRequest? {
         guard let url = urlComponents.url else {
-            print("failed to load URL from \(urlComponents)")
+            Logger.network.error("failed to load URL from \(urlComponents)")
             return nil
         }
         var urlRequest = URLRequest(url: url)
@@ -41,7 +42,7 @@ public extension EndPoint {
             do {
                 try encoding.encode(urlRequest: &urlRequest, with: parameters)
             } catch {
-                print(error)
+                Logger.network.error("\(error.localizedDescription)")
                 return nil
             }
         }
